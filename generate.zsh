@@ -18,11 +18,11 @@ case ${1:-} in
     pdf)
         (( $# == 2 )) || usage
         json=${2:A}
-        if [[ $json != "$root"/* ]]; then
-            print -u2 "JSON file must be under $root"
-            exit 1
-        fi
-        typst compile --input "data_json=${json#"$root"/}" "$root/qsl-card.typ" "$json.pdf"
+        work=$(mktemp -d)
+        trap 'rm -rf "$work"' EXIT
+        cp -R "$root/qsl-card.typ" "$root/parts" "$work/"
+        cp "$json" "$work/data.json"
+        typst compile --input "data_json=data.json" "$work/qsl-card.typ" "$json.pdf"
         ;;
     *)
         usage
